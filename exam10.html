@@ -1,0 +1,1110 @@
+<!-- Yet to publish -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Main Mock Test - Minor Test 10</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --correct-color: #28a745;
+            --wrong-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .exam-info h1 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .stat-item small {
+        display: block;
+        color: #666;
+        font-size: 0.8rem;
+        }
+
+
+        .timer-container {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--wrong-color);
+            background: #fff0f0;
+            padding: 5px 15px;
+            border-radius: 5px;
+            border: 1px solid var(--wrong-color);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            margin-top: 70px; /* Space for fixed header */
+            height: calc(100vh - 70px);
+        }
+
+        /* Sidebar for Navigation */
+        .question-palette {
+            width: 300px;
+            background: white;
+            border-left: 1px solid var(--border-color);
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .subject-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .q-num-btn {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .q-num-btn.answered {
+            background-color: var(--correct-color);
+            color: white;
+            border-color: var(--correct-color);
+        }
+
+        .q-num-btn.current {
+            border-color: var(--primary-color);
+            background-color: #e7f1ff;
+            font-weight: bold;
+        }
+
+        /* Question Area */
+        .question-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover {
+            background-color: #f8f9fa;
+        }
+
+        .option-label input {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-submit {
+            background-color: var(--correct-color);
+            color: white;
+        }
+
+        /* Results Screen (Hidden by default) */
+        #result-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            text-align: center;
+        }
+
+        .score-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+
+        /* Styles for Inspection Mode */
+        .inspect-correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+
+        .inspect-wrong {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+        }
+
+        .correct-badge {
+            margin-left: auto;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+
+        .stat-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .question-image-placeholder {
+            background: #eee;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            border: 1px dashed #999;
+            border-radius: 4px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .question-palette {
+                width: 100%;
+                height: 150px;
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="exam-info">
+            <h1>JEE (Main) Mock Test - Minor 10</h1>
+            <small>Physics, Chemistry, Mathematics</small>
+        </div>
+        <div class="timer-container" id="timer">03:00:00</div>
+    </header>
+
+    <div class="main-container" id="quiz-interface">
+        
+        <div class="question-area">
+            <div class="question-card">
+                <div class="question-header" style="margin-bottom: 15px; color: #666;">
+                    <span id="subject-label">Subject</span> &gt; Question <span id="q-display-num">1</span>
+                </div>
+                <div class="question-text" id="question-text">
+                    </div>
+                <div id="image-container" style="text-align: center; margin-bottom: 20px; display: none;">
+                        <img id="question-image" src="" alt="Question Diagram" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                    </div>
+                <div class="options-container" id="options-container">
+                    </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn" style="background: #ccc;" onclick="prevQuestion()">Previous</button>
+                <button class="btn btn-primary" onclick="nextQuestion()">Save & Next</button>
+            </div>
+        </div>
+
+        <div class="question-palette">
+            <div class="subject-tabs">
+                <button class="tab-btn active" onclick="switchSubject('physics')">Physics</button>
+                <button class="tab-btn" onclick="switchSubject('chemistry')">Chem</button>
+                <button class="tab-btn" onclick="switchSubject('math')">Maths</button>
+            </div>
+
+            <p style="margin-bottom: 10px; font-size: 0.9rem;">Question Palette:</p>
+            <div class="grid-container" id="palette-grid">
+                </div>
+
+            <div style="margin-top: auto; padding-top: 20px;">
+                <button class="btn btn-submit" style="width: 100%;" onclick="submitExam()">Submit Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <div class="result-card">
+            <h2>Exam Summary</h2>
+            <div class="score-summary">
+    <div class="stat-item" style="grid-column: span 2; background: #e7f1ff; border: 1px solid var(--primary-color);">
+        <strong>Overall Accuracy:</strong> <span id="accuracy">0</span>%
+    </div>
+    <div class="stat-item"><strong>Total Score:</strong> <span id="total-score">0</span> / <span id="max-score">0</span></div>
+    <div class="stat-item"><strong>Unattempted:</strong> <span id="unattempted-count">0</span></div>
+    
+    <div style="grid-column: span 2; margin-top: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+        <strong>Subject-wise Accuracy:</strong>
+    </div>
+
+    <div class="stat-item">Physics: <span id="phy-acc">0%</span></div>
+    <div class="stat-item"><small>C: <span id="phy-c">0</span> | W: <span id="phy-w">0</span></small></div>
+
+    <div class="stat-item">Chemistry: <span id="chem-acc">0%</span></div>
+    <div class="stat-item"><small>C: <span id="chem-c">0</span> | W: <span id="chem-w">0</span></small></div>
+
+    <div class="stat-item">Mathematics: <span id="math-acc">0%</span></div>
+    <div class="stat-item"><small>C: <span id="math-c">0</span> | W: <span id="math-w">0</span></small></div>
+</div>
+            <button class="btn btn-primary" onclick="closeResult()">Close</button>
+            <button class="btn btn-primary" onclick="closeResult()">Close</button>
+            <button class="btn" style="background: #6f42c1; color: white;" onclick="startInspect()">Inspect Answers</button>    
+        </div>
+    </div>
+
+    
+
+    <script>
+        // --- DATA SECTION: I have added a few questions from your PDF ---
+        // You can add more questions to this array following the same format.
+        // answer: 1=A, 2=B, 3=C, 4=D
+        let isInspectMode = false;
+
+        const quizData = {
+            physics: [
+                {
+                    id: 1,
+                    text: "1st",
+                    image: "images10/q26.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 2,
+                    text: "2nd",
+                    image: "images10/q27.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (A) is incorrect statement (Correct option)
+                },
+                {
+                    id: 3,
+                    text: "3rd",
+                    image: "images10/q28.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (B) from solution
+                },
+                {
+                    id: 4,
+                    text: "4th",
+                    image: "images10/q29.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 5,
+                    text: "5th",
+                    image: "images10/q30.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 6,
+                    text: "6th",
+                    image: "images10/q31.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 7,
+                    text: "7th",
+                    image: "images10/q32.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 8,
+                    text: "8th",
+                    image: "images10/q33.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 9,
+                    text: "9th",
+                    image: "images10/q34.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 10,
+                    text: "10th",
+                    image: "images10/q35.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 11,
+                    text: "11th",
+                    image: "images10/q36.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 12,
+                    text: "12th",
+                    image: "images10/q37.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 13,
+                    text: "13th",
+                    image: "images10/q38.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 14,
+                    text: "14th",
+                    image: "images10/q39.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 15,
+                    text: "15th",
+                    image: "images10/q40.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 16,
+                    text: "16th",
+                    image: "images10/q41.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 17,
+                    text: "17th",
+                    image: "images10/q42.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 18,
+                    text: "18th",
+                    image: "images10/q43.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 19,
+                    text: "19th",
+                    image: "images10/q44.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 20,
+                    text: "20th",
+                    image: "images10/q45.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 21,
+                    text: "21st (From now on, Section 2nd started these used to be typed questions but for uniformity I am adding MCQs)",
+                    image: "images10/q46.png",
+                    options: ["11", "75", "76", "41"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 22,
+                    text: "22nd",
+                    image: "images10/q47.png",
+                    options: ["62", "60", "82", "-82"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 23,
+                    text: "23th",
+                    image: "images10/q48.png",
+                    options: ["5", "1", "2", "8"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 24,
+                    text: "24th",
+                    image: "images10/q49.png",
+                    options: ["5", "10", "30", "6"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 25,
+                    text: "25th",
+                    image: "images10/q50.png",
+                    options: ["1", "4", "3", "6"],
+                    answer: 4 // Ans (D) from solution
+                }
+            ],
+            chemistry: [
+                {
+                    id: 1,
+                    text: "1st",
+                    image: "images10/q51.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },
+                {
+                    id: 2,
+                    text: "2nd",
+                    image: "images10/q52.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (A) is incorrect statement (Correct option)
+                },
+                {
+                    id: 3,
+                    text: "3rd",
+                    image: "images10/q53.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (B) from solution
+                },
+                {
+                    id: 4,
+                    text: "4th",
+                    image: "images10/q54.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 5,
+                    text: "5th",
+                    image: "images10/q55.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 6,
+                    text: "6th",
+                    image: "images10/q56.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 7,
+                    text: "7th",
+                    image: "images10/q57.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 8,
+                    text: "8th",
+                    image: "images10/q58.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 9,
+                    text: "9th",
+                    image: "images10/q59.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1// Ans (D) from solution
+                },{
+                    id: 10,
+                    text: "10th",
+                    image: "images10/q60.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 11,
+                    text: "11th",
+                    image: "images10/q61.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 12,
+                    text: "12th",
+                    image: "images10/q62.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 13,
+                    text: "13th",
+                    image: "images10/q63.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 14,
+                    text: "14th",
+                    image: "images10/q64.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 15,
+                    text: "15th",
+                    image: "images10/q65.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 16,
+                    text: "16th",
+                    image: "images10/q66.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },{
+                    id: 17,
+                    text: "17th",
+                    image: "images10/q67.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 18,
+                    text: "18th",
+                    image: "images10/q68.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 19,
+                    text: "19th",
+                    image: "images10/q69.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },{
+                    id: 20,
+                    text: "20th",
+                    image: "images10/q70.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4// Ans (D) from solution
+                },{
+                    id: 21,
+                    text: "21st (From now on, Section 2nd started these used to be typed questions but for uniformity I am adding MCQs)",
+                    image: "images10/q71.png",
+                    options: ["1998", "2984", "5483", "2549"],
+                    answer: 4 // Ans (D) from solution
+                },{
+                    id: 22,
+                    text: "22nd",
+                    image: "images10/q72.png",
+                    options: ["5", "6", "8", "10"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 23,
+                    text: "23th",
+                    image: "images10/q73.png",
+                    options: ["36", "12", "24", "16"],
+                    answer: 1 // Ans (D) from solution
+                },{
+                    id: 24,
+                    text: "24th",
+                    image: "images10/q74.png",
+                    options: ["-22", "22", "-44", "44"],
+                    answer: 1// Ans (D) from solution
+                },{
+                    id: 25,
+                    text: "25th",
+                    image: "images10/q75.png",
+                    options: ["-1", "1", "-2", "2"],
+                    answer: 4 // Ans (D) from solution
+                }
+
+            ],
+            math: [
+                {
+                    id: 1,
+                    text: "1st",
+                    image: "images10/q1.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4
+                },
+                {
+                    id: 2,
+                    text: "2nd",
+                    image: "images10/q2.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4
+                },
+                {
+                    id: 3,
+                    text: "3rd",
+                    image: "images10/q3.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4
+                },
+                {
+                    id: 4,
+                    text: "4th",
+                    image: "images10/q4.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1
+                },
+                {
+                    id: 5,
+                    text: "5th",
+                    image: "images10/q5.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },
+                {
+                    id: 6,
+                    text: "6th",
+                    image: "images10/q6.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4
+                },
+                {
+                    id: 7,
+                    text: "7th",
+                    image: "images10/q7.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4
+                },
+                {
+                    id: 8,
+                    text: "8th",
+                    image: "images10/q8.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },
+                {
+                    id: 9,
+                    text: "9th",
+                    image: "images10/q9.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2// Ans (D) from solution
+                },
+                {
+                    id: 10,
+                    text: "10th",
+                    image: "images10/q10.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 1 // Ans (D) from solution
+                },
+                {
+                    id: 11,
+                    text: "11th",
+                    image: "images10/q11.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 12,
+                    text: "12th",
+                    image: "images10/q12.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },
+                {
+                    id: 13,
+                    text: "13th",
+                    image: "images10/q13.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },
+                {
+                    id: 14,
+                    text: "14th",
+                    image: "images10/q14.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 15,
+                    text: "15th",
+                    image: "images10/q15.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 16,
+                    text: "16th",
+                    image: "images10/q16.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2 // Ans (D) from solution
+                },
+                {
+                    id: 17,
+                    text: "17th",
+                    image: "images10/q17.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 18,
+                    text: "18th",
+                    image: "images10/q18.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 19,
+                    text: "19th",
+                    image: "images10/q19.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 4 // Ans (D) from solution
+                },
+                {
+                    id: 20,
+                    text: "20th",
+                    image: "images10/q20.png",
+                    options: ["A", "B", "C", "D"],
+                    answer: 2// Ans (D) from solution
+                },
+                {
+                    id: 21,
+                    text: "21st (From now on, Section 2nd started these used to be typed questions but for uniformity I am adding MCQs)",
+                    image: "images10/q21.png",
+                    options: ["13", "18", "10", "9"],
+                    answer: 4 // Ans (D) from solution
+                },
+                {
+                    id: 22,
+                    text: "22nd",
+                    image: "images10/q22.png",
+                    options: ["5", "8", "6", "10"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 23,
+                    text: "23rd",
+                    image: "images10/q23.png",
+                    options: ["4", "3", "2", "8"],
+                    answer: 3 // Ans (D) from solution
+                },
+                {
+                    id: 24,
+                    text: "24th",
+                    image: "images10/q24.png",
+                    options: ["160", "120", "163", "240"],
+                    answer: 2 // Ans (D) from solution
+                },
+                {
+                    id: 25,
+                    text: "25th",
+                    image: "images10/q25.png",
+                    options: ["-4", "3", "2", "7"],
+                    answer: 3 // Ans (D) from solution
+                }
+            ]
+        };
+
+        // --- STATE VARIABLES ---
+        let currentSubject = 'physics';
+        let currentQuestionIndex = 0;
+        let userAnswers = {
+            physics: {},
+            chemistry: {},
+            math: {}
+        };
+        let timerInterval;
+        let timeLeft = 3 * 60 * 60; // 3 hours in seconds
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            startTimer();
+            loadQuestion();
+            renderPalette();
+        };
+
+        // --- CORE FUNCTIONS ---
+
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                } else {
+                    timeLeft--;
+                    let hrs = Math.floor(timeLeft / 3600);
+                    let mins = Math.floor((timeLeft % 3600) / 60);
+                    let secs = timeLeft % 60;
+                    
+                    // Format with leading zeros
+                    timerDisplay.textContent = 
+                        `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function switchSubject(subject) {
+            currentSubject = subject;
+            currentQuestionIndex = 0;
+            
+            // Update Tab Styles
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active'); // Warning: simplistic event targeting
+            
+            // Fix for direct calls where event might not be click
+            if(subject === 'physics') document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            if(subject === 'chemistry') document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            if(subject === 'math') document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+
+            loadQuestion();
+            renderPalette();
+        }
+
+        function loadQuestion() {
+    const qData = quizData[currentSubject][currentQuestionIndex];
+    const qText = document.getElementById('question-text');
+    const optsContainer = document.getElementById('options-container');
+    const subjectLabel = document.getElementById('subject-label');
+    const qNumDisplay = document.getElementById('q-display-num');
+    const imgContainer = document.getElementById('image-container');
+    const imgElement = document.getElementById('question-image');
+
+    if (qData.image) {
+        imgElement.src = qData.image;
+        imgContainer.style.display = 'block';
+    } else {
+        imgContainer.style.display = 'none';
+    }
+
+    subjectLabel.textContent = currentSubject.charAt(0).toUpperCase() + currentSubject.slice(1);
+    qNumDisplay.textContent = currentQuestionIndex + 1;
+    qText.innerHTML = qData.text;
+    optsContainer.innerHTML = '';
+
+    qData.options.forEach((opt, index) => {
+        const optionValue = index + 1;
+        const label = document.createElement('label');
+        label.className = 'option-label';
+        
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'option';
+        input.value = optionValue;
+        
+        const isUserSelected = userAnswers[currentSubject][currentQuestionIndex] === optionValue;
+        const isCorrectOption = qData.answer === optionValue;
+
+        if (isUserSelected) input.checked = true;
+
+        // --- INSPECTION LOGIC ---
+        if (isInspectMode) {
+            input.disabled = true; // Prevent changing answers
+            if (isCorrectOption) {
+                label.classList.add('inspect-correct');
+                const badge = document.createElement('span');
+                badge.className = 'correct-badge';
+                badge.textContent = '✓ Correct Answer';
+                label.appendChild(badge);
+            } else if (isUserSelected && !isCorrectOption) {
+                label.classList.add('inspect-wrong');
+            }
+        } else {
+            // Normal Mode: Save on click
+            input.onclick = () => {
+                userAnswers[currentSubject][currentQuestionIndex] = optionValue;
+                renderPalette();
+            };
+        }
+
+        label.prepend(input);
+        const textSpan = document.createElement('span');
+        textSpan.textContent = opt;
+        input.after(textSpan);
+        optsContainer.appendChild(label);
+    });
+}
+
+        function renderPalette() {
+            const grid = document.getElementById('palette-grid');
+            grid.innerHTML = '';
+            
+            quizData[currentSubject].forEach((q, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'q-num-btn';
+                btn.textContent = index + 1;
+                
+                // Style logic
+                if (index === currentQuestionIndex) {
+                    btn.classList.add('current');
+                }
+                if (userAnswers[currentSubject][index] !== undefined) {
+                    btn.classList.add('answered');
+                }
+
+                btn.onclick = () => {
+                    currentQuestionIndex = index;
+                    loadQuestion();
+                    renderPalette();
+                };
+
+                grid.appendChild(btn);
+            });
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData[currentSubject].length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                renderPalette();
+            } else {
+                alert("You are at the last question of this subject. Switch subject from the tabs.");
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                renderPalette();
+            }
+        }
+
+        function submitExam() {
+    clearInterval(timerInterval);
+    
+    let totalScore = 0;
+    let totalCorrect = 0;
+    let totalWrong = 0;
+    let totalUnattempted = 0;
+    let totalMaxScore = 0;
+
+    // Object to store subject-specific results
+    let subjectStats = {
+        physics: { correct: 0, wrong: 0, unattempted: 0 },
+        chemistry: { correct: 0, wrong: 0, unattempted: 0 },
+        math: { correct: 0, wrong: 0, unattempted: 0 }
+    };
+
+    // Calculate Scores per subject
+    ['physics', 'chemistry', 'math'].forEach(sub => {
+        quizData[sub].forEach((q, idx) => {
+            const userAns = userAnswers[sub][idx];
+            totalMaxScore += 4;
+
+            if (userAns === undefined) {
+                subjectStats[sub].unattempted++;
+                totalUnattempted++;
+            } else if (userAns === q.answer) {
+                subjectStats[sub].correct++;
+                totalCorrect++;
+                totalScore += 4;
+            } else {
+                subjectStats[sub].wrong++;
+                totalWrong++;
+                totalScore -= 1;
+            }
+        });
+
+        // Calculate and Update Subject-wise UI
+        let subAttempted = subjectStats[sub].correct + subjectStats[sub].wrong;
+        let subAccuracy = subAttempted > 0 ? ((subjectStats[sub].correct / subAttempted) * 100).toFixed(1) : 0;
+        
+        // Map subject keys to UI IDs
+        let idMap = { physics: 'phy', chemistry: 'chem', math: 'math' };
+        document.getElementById(`${idMap[sub]}-acc`).textContent = subAccuracy + '%';
+        document.getElementById(`${idMap[sub]}-c`).textContent = subjectStats[sub].correct;
+        document.getElementById(`${idMap[sub]}-w`).textContent = subjectStats[sub].wrong;
+    });
+
+    // Update Overall UI
+    document.getElementById('total-score').textContent = totalScore;
+    document.getElementById('max-score').textContent = totalMaxScore;
+    document.getElementById('unattempted-count').textContent = totalUnattempted;
+    
+    const totalAttempted = totalCorrect + totalWrong;
+    const overallAccuracy = totalAttempted > 0 ? ((totalCorrect / totalAttempted) * 100).toFixed(1) : 0;
+    document.getElementById('accuracy').textContent = overallAccuracy;
+
+    document.getElementById('result-screen').style.display = 'flex';
+}
+
+        function closeResult() {
+            document.getElementById('result-screen').style.display = 'none';
+        }
+
+        function startInspect() {
+    isInspectMode = true;
+    closeResult(); // Hide the summary
+    currentQuestionIndex = 0; // Start from first question
+    currentSubject = 'physics'; 
+    loadQuestion();
+    renderPalette();
+    
+    // Optional: Add a visual indicator that we are in Inspect Mode
+    document.querySelector('.exam-info h1').innerHTML += " <span style='color:red'>(Review Mode)</span>";
+    
+    // Change "Save & Next" text to just "Next"
+    document.querySelector('.btn-primary').textContent = "Next";
+}
+    </script>
+</body>
+</html>
